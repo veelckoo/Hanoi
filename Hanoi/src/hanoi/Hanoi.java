@@ -35,7 +35,7 @@ public class Hanoi implements MouseListener, MouseMotionListener {
    }
 
     /**
-     * @return
+     * @return returns number of discs to play with
      */
     public static int chooseDifficulty(){
         //TODO panel with radio buttons instead of option pane;
@@ -172,22 +172,22 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     }
  
     /**
-     * @param c
-     * @param x
-     * @param y
+     * @param c Component Disc that user moves
+     * @param x X-coord at which user is trying to drop disc
+     * @param y Y-coord at which user is trying to drop disc
      */
     public void tryPut(Component c, int x, int y){
-        //we are dividing the screen into 3 parts (3 pegs)
-        //since frame size width is 800 each peg width is 266
         Disc d = (Disc)c;
         int i;
         
+        //we are dividing the screen into 3 parts (3 pegs)
+        //since frame size width is 800 each peg area width is 266
         if(x<266){
-            i = 0;   //we drop at peg0
+            i = 0;   //user is dropping on peg0
         }else if(x<532){
-            i = 1;   //we drop at peg1
+            i = 1;   //user is dropping on peg1
         }else{
-            i = 2;   //we drop at peg2
+            i = 2;   //we drop on peg2
         }
         if(!pegArray[i].isEmpty()){
             Disc onPeg = (Disc)pegArray[i].peek();
@@ -203,9 +203,9 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     }     
       
     /**
-     * @param d
-     * @param p
-     * @param isMove
+     * @param d - Disc we are interacting with
+     * @param p - Peg on which to put disc
+     * @param isMove - needed to count moves even if illegal
      */
     public void put(Disc d, Peg p, boolean isMove){
         d.getPeg().removeDisc();//remove disc from the source peg 
@@ -224,9 +224,11 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     }
      
     public void checkGameOver() {
+    	//if all discs on last peg == game over
         if(pegArray[2].getDiscs().size() == totalDiscs){
             gameOverSnd.play();
             try {
+            	panelBg = ImageIO.read(getClass().getResource("/res/panel_bg.png"));
                 frame.setContentPane(new GameOverPanel(panelBg)); 
             } catch (IOException ex) {
                 Logger.getLogger(Hanoi.class.getName()).log(Level.SEVERE, null, ex);

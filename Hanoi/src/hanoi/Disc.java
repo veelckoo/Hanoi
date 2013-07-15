@@ -14,7 +14,7 @@ public class Disc extends javax.swing.JLabel {
         xCoord = 0;
         yCoord = 0;
         //setText(String.valueOf(num));
-        setBounds(xCoord, yCoord, num, MY_HEIGHT);
+        setBounds(xCoord, yCoord, diameter, MY_HEIGHT);
         String imageName = "/res/disc"+diameter+".png";
         setIcon(new javax.swing.ImageIcon(getClass().getResource(imageName)));
         setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
