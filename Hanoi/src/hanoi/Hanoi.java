@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -22,10 +23,6 @@ public class Hanoi implements MouseListener, MouseMotionListener {
    protected static int totalDiscs;
    private static JFrame frame;
    private Label movesNum = new Label("0", null);
-   private Sound failSnd;
-   private Sound putSnd; 
-   private Sound pickSnd; 
-   private Sound gameOverSnd;
    private Image panelBg;
    private int startDragX, startDragY;
    private boolean inDrag = false;
@@ -37,6 +34,7 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     /**
      * @return returns number of discs to play with
      */
+   //TODO Rewrite or make nice graphics
     public static int chooseDifficulty(){
         //TODO panel with radio buttons instead of option pane;
         String tempStr = JOptionPane.showInputDialog("Choose difficulty (4,6,8): ");
@@ -58,10 +56,6 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     }
     
    Hanoi() {
-       failSnd = new Sound("fail.wav");
-       putSnd = new Sound ("put.wav");
-       pickSnd = new Sound ("pick.wav");
-       gameOverSnd = new Sound ("go.wav");
        
        frame = new JFrame("Towers Of Hanoi");
        frame.setLayout(null);
@@ -139,6 +133,7 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     public void mousePressed(MouseEvent e) {
         startDragX = e.getX();
         startDragY = e.getY();
+        Sound.play("res/pick.wav");
     }
 
     @Override
@@ -163,6 +158,7 @@ public class Hanoi implements MouseListener, MouseMotionListener {
             int newY = e.getComponent().getY() + (e.getY() - startDragY);
             e.getComponent().setLocation(newX, newY);
             inDrag = true;
+            
         }
     }
 
@@ -172,14 +168,15 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     }
  
     /**
+     * Establish if a move is a valid one or not
      * @param c Component Disc that user moves
-     * @param x X-coord at which user is trying to drop disc
-     * @param y Y-coord at which user is trying to drop disc
+     * @param x,y X,Y-coord at which user is trying to drop disc
+     * 
      */
     public void tryPut(Component c, int x, int y){
         Disc d = (Disc)c;
         int i;
-        
+       
         //we are dividing the screen into 3 parts (3 pegs)
         //since frame size width is 800 each peg area width is 266
         if(x<266){
@@ -194,18 +191,17 @@ public class Hanoi implements MouseListener, MouseMotionListener {
             if(d.getDiameter()<=onPeg.getDiameter()){
                 put(d, pegArray[i], true);
             }else{
-                failSnd.play();
-                put(d, d.getPeg(), false); 
-            }
+                put(d, d.getPeg(), false);
+                            }
         }else{
            put(d, pegArray[i], true);
         }
     }     
       
     /**
-     * @param d - Disc we are interacting with
-     * @param p - Peg on which to put disc
-     * @param isMove - needed to count moves even if illegal
+     * @param d - Hovering Disc we are interacting with
+     * @param p - Peg on which to put hovered disc
+     * @param isMove - needed to count moves & not count putting disc back
      */
     public void put(Disc d, Peg p, boolean isMove){
         d.getPeg().removeDisc();//remove disc from the source peg 
@@ -218,15 +214,17 @@ public class Hanoi implements MouseListener, MouseMotionListener {
         if(isMove){  //this is for illegal moves
             moves++;
             movesNum.setText(String.valueOf(moves));
+        } else {
+        	Sound.play("res/fail.wav");
         }
-        putSnd.play();
+        Sound.play("res/put.wav");
         checkGameOver();
     }
      
     public void checkGameOver() {
     	//if all discs on last peg == game over
         if(pegArray[2].getDiscs().size() == totalDiscs){
-            gameOverSnd.play();
+            //gameOverSnd.play();
             try {
             	panelBg = ImageIO.read(getClass().getResource("/res/panel_bg.png"));
                 frame.setContentPane(new GameOverPanel(panelBg)); 

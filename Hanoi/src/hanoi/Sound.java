@@ -1,39 +1,29 @@
 package hanoi;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import sun.audio.*;
+import javax.sound.sampled.*;
 
-//TODO rewrite completely
 public class Sound {
-    private AudioData audiodata;
-    private AudioDataStream audiostream;
-    private ContinuousAudioDataStream continuousaudiostream;
 
-    public Sound (URL url) throws java.io.IOException {
-        audiodata = new AudioStream (url.openStream()).getData();
-        audiostream = null;
-        continuousaudiostream = null;
-    }
+    public static synchronized void play(final String fileName) {
+        
+        new Thread(new Runnable() { 
 
-    public Sound(String filename) {
-        try {
-            FileInputStream fis = new FileInputStream (filename);
-            AudioStream audioStream = new AudioStream (fis);
-            audiodata = audioStream.getData();
-            audiostream = null;
-            continuousaudiostream = null;
-        } catch (IOException ex) {
-            Logger.getLogger(Sound.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void play () {
-        audiostream = new AudioDataStream (audiodata);
-        AudioPlayer.player.start (audiostream);
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    URL url = this.getClass().getClassLoader().getResource(fileName);
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(url);
+                    clip.open(inputStream);
+                    clip.start(); 
+                } catch (Exception e) {
+                    System.out.println("play sound error: " + e.getMessage() + " for " + fileName);
+                }
+            }
+
+        }).start();
+
     }
 
 }
+
