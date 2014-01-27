@@ -76,6 +76,7 @@ public class GameOverPanel extends ImagePanel{
         this.add(numMoves);
         this.add(minMovesTxt);
         this.add(minMoves);
+        //is solution optimal?
         if (Hanoi.moves > min) {
             this.add(tryHarder);
         }else if(Hanoi.moves == min){
@@ -89,6 +90,7 @@ public class GameOverPanel extends ImagePanel{
     
     private void gameOverButtonActionPerformed(java.awt.event.ActionEvent evt) {                                               
         this.setVisible(false);
+        //this.setEnabled(false);
         Hanoi.main(null);
     }                                              
 

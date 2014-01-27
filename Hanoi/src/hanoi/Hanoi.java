@@ -22,13 +22,68 @@ public class Hanoi implements MouseListener, MouseMotionListener {
    protected static int moves, minMoves;
    protected static int totalDiscs;
    private static JFrame frame;
-   private Label movesNum = new Label("0", null);
+   private static Label movesNum = new Label("0", null);
    private Image panelBg;
    private int startDragX, startDragY;
    private boolean inDrag = false;
+   private static boolean frameCreated = false;
    
    public static void main(String[] args) {
-        new Hanoi();
+        Hanoi hanoi = new Hanoi();
+        frameCreated = true;
+        BufferedImage myImage = null;
+        try {
+            myImage = ImageIO.read(hanoi.getClass().getResource("/res/bg.png"));
+        } catch (IOException ex) {
+            Logger.getLogger(Hanoi.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        frame.setContentPane(new ImagePanel(myImage));
+        // LABELS
+        movesNum.setBounds( 25,  66, 233,  50);
+        Label movesTxt = new Label("MOVES:", null); 
+        movesTxt.setBounds( 25,  10, 233,  50);
+        Label timerTxt = new Label("TIME:", null);
+        timerTxt.setBounds(545,  10, 233,  50);
+
+        frame.add(movesTxt);
+        frame.add(movesNum);
+        frame.add(timerTxt);
+
+         moves = 0;
+         totalDiscs = chooseDifficulty();
+         minMoves = (int)((Math.pow(2,totalDiscs))-1);
+         Disc[] discArray = new Disc[totalDiscs];
+         int width = 25;  //width + factor = size of smallest disk
+         int factor = 25;
+         for(int i = 0; i < totalDiscs; i++){
+             discArray[i] = new Disc(width+factor);
+             width += factor; 
+             discArray[i].addMouseListener(hanoi);
+             discArray[i].addMouseMotionListener(hanoi);
+             frame.add(discArray[i]);
+         }
+         pegArray = new Peg[PEGS];
+         for(int i = 0; i < PEGS; i++){
+             pegArray[i] = new Peg();
+             pegArray[i].setMiddle((i+1)*35 +i*220 + 110);//266 - width of space for one peg
+         }
+         for(int i = totalDiscs-1; i >-1; i--){
+             pegArray[0].addDisc(discArray[i]);  
+             discArray[i].setPeg(pegArray[0]);   
+         }
+         int counter = 0;
+         for(int i = totalDiscs-1; i >-1; i--){
+             Disc d = discArray[i];
+             counter++;
+             d.moveDisc(pegArray[0].getMiddle() - (int)d.getWidth()/2, 
+                 frame.getHeight()- BOTTOM_MARGIN - (int)d.getHeight()*counter); 
+                 //lowest disk 100 px from the bottom
+         }
+         DigitalTimer myTimer = new DigitalTimer();
+         myTimer.setBounds( 544,66, 233,50);
+         frame.add(myTimer);
+         //frame.pack();
+         frame.setVisible(true);
    }
 
     /**
@@ -56,7 +111,9 @@ public class Hanoi implements MouseListener, MouseMotionListener {
     }
     
    Hanoi() {
-       
+       if(frameCreated){
+    	   frame.dispose();
+       }
        frame = new JFrame("Towers Of Hanoi");
        frame.setLayout(null);
        frame.setMinimumSize(new Dimension(800, 600));
@@ -64,59 +121,7 @@ public class Hanoi implements MouseListener, MouseMotionListener {
        frame.setLocationRelativeTo(null);
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       
-       BufferedImage myImage = null;
-       try {
-           myImage = ImageIO.read(getClass().getResource("/res/bg.png"));
-       } catch (IOException ex) {
-           Logger.getLogger(Hanoi.class.getName()).log(Level.SEVERE, null, ex);
-       }
-       frame.setContentPane(new ImagePanel(myImage));
-       // LABELS
-       movesNum.setBounds( 25,  66, 233,  50);
-       Label movesTxt = new Label("MOVES:", null); 
-       movesTxt.setBounds( 25,  10, 233,  50);
-       Label timerTxt = new Label("TIME:", null);
-       timerTxt.setBounds(545,  10, 233,  50);
 
-       frame.add(movesTxt);
-       frame.add(movesNum);
-       frame.add(timerTxt);
-
-        moves = 0;
-        totalDiscs = chooseDifficulty();
-        minMoves = (int)((Math.pow(2,totalDiscs))-1);
-        Disc[] discArray = new Disc[totalDiscs];
-        int width = 25;  //width + factor = size of smallest disk
-        int factor = 25;
-        for(int i = 0; i < totalDiscs; i++){
-            discArray[i] = new Disc(width+factor);
-            width += factor; 
-            discArray[i].addMouseListener(this);
-            discArray[i].addMouseMotionListener(this);
-            frame.add(discArray[i]);
-        }
-        pegArray = new Peg[PEGS];
-        for(int i = 0; i < PEGS; i++){
-            pegArray[i] = new Peg();
-            pegArray[i].setMiddle((i+1)*35 +i*220 + 110);//266 - width of space for one peg
-        }
-        for(int i = totalDiscs-1; i >-1; i--){
-            pegArray[0].addDisc(discArray[i]);  
-            discArray[i].setPeg(pegArray[0]);   
-        }
-        int counter = 0;
-        for(int i = totalDiscs-1; i >-1; i--){
-            Disc d = discArray[i];
-            counter++;
-            d.moveDisc(pegArray[0].getMiddle() - (int)d.getWidth()/2, 
-                frame.getHeight()- BOTTOM_MARGIN - (int)d.getHeight()*counter); 
-                //lowest disk 100 px from the bottom
-        }
-        DigitalTimer myTimer = new DigitalTimer();
-        myTimer.setBounds( 544,66, 233,50);
-        frame.add(myTimer);
-        //frame.pack();
-        frame.setVisible(true);
     }
    
     @Override
